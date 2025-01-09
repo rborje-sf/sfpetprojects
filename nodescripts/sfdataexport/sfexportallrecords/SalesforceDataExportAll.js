@@ -24,12 +24,12 @@ function getSObjectFields(sObjectName, orgName) {
     });
 }
 
-// Function to query records from the Salesforce object
-function querySObjectRecords(sObjectName, fields, orgName) {
+// Function to query records from the Salesforce object using Bulk API
+function querySObjectRecordsBulk(sObjectName, fields, orgName) {
     return new Promise((resolve, reject) => {
         const fieldList = fields.join(', ');
         const query = `SELECT ${fieldList} FROM ${sObjectName}`;
-        exec(`sf data query --query "${query}" --target-org ${orgName} --json`, (error, stdout, stderr) => {
+        exec(`sf data query --query "${query}" --target-org ${orgName} --bulk --json`, (error, stdout, stderr) => {
             if (error) {
                 reject(`Error executing Salesforce CLI command: ${stderr || error.message}`);
             } else {
@@ -138,7 +138,7 @@ getSObjectFields(sObjectName, orgName)
         clearLoadingMessage();
         console.log('Salesforce object fields fetched successfully.');
         showLoadingMessage('Querying records from Salesforce object...');
-        return querySObjectRecords(sObjectName, fields, orgName).then(records => ({ records, fields }));
+        return querySObjectRecordsBulk(sObjectName, fields, orgName).then(records => ({ records, fields }));
     })
     .then(({ records, fields }) => {
         clearLoadingMessage();
